@@ -1,5 +1,15 @@
 services:
   - type: web
+    name: bookstore-server
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: node server/index.js
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
     name: bookstore-client
     env: static
     buildCommand: cd client && npm install && npm run build
@@ -7,16 +17,3 @@ services:
     buildFilter:
       paths:
         - client/**
-
-  - type: web
-    name: bookstore-server
-    env: node
-    rootDir: server
-    buildCommand: npm install
-    startCommand: node index.js
-    envVars:
-      - key: NODE_VERSION
-        value: 22
-    buildFilter:
-      paths:
-        - server/**
