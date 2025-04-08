@@ -29,7 +29,8 @@
       "react-app/jest"
     ]
   },
-  "homepage": ".",
+  "homepage": "https://AndriZhok.github.io/BookStore",
+  "proxy": "https://назва-на-render.onrender.com",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -45,5 +46,4 @@
   "devDependencies": {
     "gh-pages": "^6.3.0"
   }
-  
 }
