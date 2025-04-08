@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: bookstore-client
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/build
+    buildFilter:
+      paths:
+        - client/**
+
+  - type: web
+    name: bookstore-server
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+    buildFilter:
+      paths:
+        - server/**
