@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase/firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, getDoc, updateDoc } from "firebase/firestore"; // 🔥 додати у верхній імпорт
 import { useAuth } from "../hooks/useAuth";
 
 const Cart = () => {
@@ -64,12 +64,40 @@ const Cart = () => {
       return;
     }
 
+    console.log("📤 Відправляємо замовлення:", JSON.stringify({ userId: user.uid, items: cart }, null, 2));
     console.log("📤 Надсилаємо замовлення:", {
       userId: user.uid,
       items: cart,
     });
 
     try {
+      // Попередня перевірка на наявність усіх книг
+      for (const [id, item] of Object.entries(cart)) {
+        const bookRef = doc(db, "books", id);
+        const bookSnapshot = await getDoc(bookRef);
+
+        if (!bookSnapshot.exists()) {
+          throw new Error(`Книга з ID ${id} не знайдена.`);
+        }
+
+        const currentData = bookSnapshot.data();
+        const currentQuantity = currentData.quantity || 0;
+
+        if (currentQuantity < item.quantity) {
+          throw new Error(`Недостатня кількість книги "${item.title}" на складі. Доступно: ${currentQuantity}, потрібно: ${item.quantity}`);
+        }
+      }
+
+      // Якщо всі перевірки пройдено — оновити кількість
+      for (const [id, item] of Object.entries(cart)) {
+        const bookRef = doc(db, "books", id);
+        const bookSnapshot = await getDoc(bookRef);
+        const currentData = bookSnapshot.data();
+        const currentQuantity = currentData.quantity || 0;
+
+        await updateDoc(bookRef, { quantity: currentQuantity - item.quantity });
+      }
+
       const response = await fetch("http://localhost:5001/api/orders", {
         method: "POST",
         headers: {
@@ -82,6 +110,7 @@ const Cart = () => {
       });
 
       if (!response.ok) {
+        console.log("📤 Відправляємо замовлення:", JSON.stringify({ userId: user.uid, items: cart }, null, 2));
         const errorData = await response.json();
         throw new Error(errorData.error || "Помилка збереження замовлення.");
       }

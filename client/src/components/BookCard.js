@@ -40,6 +40,7 @@ const BookCard = ({ book, onAdd, isAdded }) => {
       <h3>{book.title}</h3>
       <p><strong>Автор:</strong> {book.author}</p>
       <p><strong>Ціна:</strong> {book.price} грн</p>
+      <p><strong>Кількість:</strong> {book.quantity || 0}</p>
       <button onClick={() => onAdd(book)} style={styles.button}>
         {isAdded ? "✅ Додано" : "➕ Додати до кошика"}
       </button>
